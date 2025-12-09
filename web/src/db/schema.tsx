@@ -47,3 +47,17 @@ export const assignments = pgTable("assignments", {
         .references(() => profiles.id)
         .notNull(),
 });
+
+// 5. Availabilities
+export const availabilities = pgTable("availabilities", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+        .references(() => profiles.id, { onDelete: "cascade" })
+        .notNull(),
+    tentId: uuid("tent_id")
+        .references(() => tents.id, { onDelete: "cascade" })
+        .notNull(),
+    startTime: timestamp("start_time").notNull(),
+    endTime: timestamp("end_time").notNull(),
+    status: text("status").notNull(), // 'available', 'maybe', 'unavailable'
+});
