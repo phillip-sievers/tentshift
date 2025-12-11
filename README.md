@@ -12,7 +12,13 @@ WIP:
     -   [ ] Responsiveness of selecting
 -   [ ] Frontend
     -   [ ] Summary Page
+        -   [ ] View next few shifts
+        -   [ ] Safe or not etc
+        -   [ ] Personal info
     -   [ ] Trading Page
+        -   [ ] Offers as a swap or as a handoff
+        -   [ ] creating/delete/reject trades (partial or full shifts)
+        -   [ ] accept/view trade link to send to messages (tent group)
     -   [ ] About Page + Dono + Footer?
 -   [ ] Add database integration
     -   [ ] Fix slop schemas make sure business and db logic match
