@@ -1,60 +1,37 @@
-import Link from "next/link";
+"use client";
+
+import { useState } from "react";
+import { DesktopDashboard } from "@/components/dashboard/DesktopDashboard";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 export default function Home() {
+    const [darkMode, setDarkMode] = useState(false);
+
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground">
-            <main className="flex flex-col items-center gap-8 p-10 text-center">
-                <h1 className="text-4xl font-bold tracking-tight">TentShift</h1>
-                <p className="text-xl text-muted-foreground">
-                    K-Ville Scheduling & Management
-                </p>
+        <DndProvider backend={HTML5Backend}>
+            <div className={darkMode ? "dark" : ""}>
+                <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
+                    {/* Header Navigation */}
+                    <div className="bg-[#003087] text-white p-4 sticky top-0 z-50">
+                        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+                            <h1 className="text-2xl">K-Ville Tent Manager</h1>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setDarkMode(!darkMode)}
+                                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded transition-colors cursor-pointer">
+                                    {darkMode ? "☀️ Light" : "🌙 Dark"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <Link
-                        href="/login"
-                        className="rounded-lg border p-4 transition-colors hover:bg-accent hover:text-accent-foreground">
-                        <h2 className="mb-2 text-xl font-semibold">
-                            Login &rarr;
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            Sign in to your account.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href="/dashboard"
-                        className="rounded-lg border p-4 transition-colors hover:bg-accent hover:text-accent-foreground">
-                        <h2 className="mb-2 text-xl font-semibold">
-                            Dashboard &rarr;
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            View your tent's status.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href="/dashboard/availability"
-                        className="rounded-lg border p-4 transition-colors hover:bg-accent hover:text-accent-foreground">
-                        <h2 className="mb-2 text-xl font-semibold">
-                            Availability &rarr;
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            Manage your schedule.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href="/onboarding"
-                        className="rounded-lg border p-4 transition-colors hover:bg-accent hover:text-accent-foreground">
-                        <h2 className="mb-2 text-xl font-semibold">
-                            Onboarding &rarr;
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                            Create or join a tent.
-                        </p>
-                    </Link>
+                    {/* Main Content */}
+                    <div className="p-6">
+                        <DesktopDashboard darkMode={darkMode} />
+                    </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </DndProvider>
     );
 }
