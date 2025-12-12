@@ -18,10 +18,10 @@ WIP for MVP:
     - [x] View next few shifts
     - [x] Safe or not etc
     - [x] Personal info
-  - [ ] Trading Page
-    - [ ] Offers as a swap or as a handoff
-    - [ ] creating/delete/reject trades (partial or full shifts)
-    - [ ] accept/view trade link to send to messages (tent group)
+  - [x] Trading Page
+    - [x] Offers as a swap or as a handoff
+    - [x] creating/delete/reject trades (partial or full shifts)
+    - [x] accept/view trade link to send to messages (tent group)
   - [ ] About Page + Dono + Footer?
 - [ ] Add database integration
   - [ ] Fix slop schemas make sure business and db logic match
