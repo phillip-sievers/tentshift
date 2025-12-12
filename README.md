@@ -14,10 +14,10 @@ WIP for MVP:
   - [x] fix coloring, theming
   - [ ] Responsiveness of selecting
 - [ ] Frontend
-  - [ ] Summary Page
-    - [ ] View next few shifts
-    - [ ] Safe or not etc
-    - [ ] Personal info
+  - [x] Summary Page
+    - [x] View next few shifts
+    - [x] Safe or not etc
+    - [x] Personal info
   - [ ] Trading Page
     - [ ] Offers as a swap or as a handoff
     - [ ] creating/delete/reject trades (partial or full shifts)
