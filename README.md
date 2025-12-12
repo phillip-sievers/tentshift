@@ -13,6 +13,7 @@ WIP for MVP:
   - [x] Dark/Lightmode fix
   - [x] fix coloring, theming
   - [ ] Responsiveness of selecting
+  - [ ] Unify design (big time difficult)
 - [ ] Frontend
   - [x] Summary Page
     - [x] View next few shifts
