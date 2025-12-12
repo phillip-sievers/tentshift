@@ -17,6 +17,7 @@ import {
 import { SpreadsheetScheduler } from "./SpreadsheetScheduler";
 import { RulesEngineModal } from "./RulesEngineModal";
 import { SummaryView } from "./SummaryView";
+import { TradingView } from "./TradingView";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import type { Member, TimeSlot, PhaseSettings } from "../../types";
 
@@ -266,30 +267,30 @@ export function DesktopDashboard() {
             <div className="flex gap-2 mb-4 border-b border-border">
                 <button
                     onClick={() => handleTabChange("schedule")}
-                    className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+                    className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all duration-200 ${
                         currentTab === "schedule"
-                            ? "border-[#003087] text-[#003087] dark:text-white"
-                            : "border-transparent text-muted-foreground hover:text-foreground"
+                            ? "border-[#003087] text-[#003087] dark:text-white bg-blue-50/10 shadow-sm"
+                            : "border-transparent text-muted-foreground hover:text-[#003087] hover:border-[#003087]/20 hover:bg-gray-50/50 hover:shadow-sm"
                     }`}>
                     <Calendar className="w-4 h-4" />
                     Schedule
                 </button>
                 <button
                     onClick={() => handleTabChange("summary")}
-                    className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+                    className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all duration-200 ${
                         currentTab === "summary"
-                            ? "border-[#003087] text-[#003087] dark:text-white"
-                            : "border-transparent text-muted-foreground hover:text-foreground"
+                            ? "border-[#003087] text-[#003087] dark:text-white bg-blue-50/10 shadow-sm"
+                            : "border-transparent text-muted-foreground hover:text-[#003087] hover:border-[#003087]/20 hover:bg-gray-50/50 hover:shadow-sm"
                     }`}>
                     <TrendingUp className="w-4 h-4" />
                     Summary
                 </button>
                 <button
                     onClick={() => handleTabChange("trading")}
-                    className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+                    className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all duration-200 ${
                         currentTab === "trading"
-                            ? "border-[#003087] text-[#003087] dark:text-white"
-                            : "border-transparent text-muted-foreground hover:text-foreground"
+                            ? "border-[#003087] text-[#003087] dark:text-white bg-blue-50/10 shadow-sm"
+                            : "border-transparent text-muted-foreground hover:text-[#003087] hover:border-[#003087]/20 hover:bg-gray-50/50 hover:shadow-sm"
                     }`}>
                     <RefreshCw className="w-4 h-4" />
                     Shift Trading
@@ -429,16 +430,7 @@ export function DesktopDashboard() {
             )}
 
             {currentTab === "trading" && (
-                <div className="p-12 rounded-lg border bg-card text-card-foreground shadow-sm text-center">
-                    <RefreshCw className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-xl mb-2 text-foreground">
-                        Shift Trading
-                    </h3>
-                    <p className="text-muted-foreground">
-                        Coming soon: Request, offer, and swap shifts with other
-                        team members.
-                    </p>
-                </div>
+                <TradingView currentUserId={selectedMember} />
             )}
 
             {/* Rules Engine Modal */}
