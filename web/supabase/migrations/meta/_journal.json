@@ -15,6 +15,13 @@
       "when": 1765255355630,
       "tag": "0001_nasty_drax",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765507904393,
+      "tag": "0002_fancy_inhumans",
+      "breakpoints": true
     }
   ]
 }

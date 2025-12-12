@@ -15,7 +15,6 @@ interface SpreadsheetSchedulerProps {
     timeSlots: TimeSlot[];
     members: Member[];
     onToggleAssignment: (memberId: string, slotTime: string) => void;
-    darkMode: boolean;
     selectedDate: Date;
     onDateChange: (date: Date) => void;
 }
@@ -24,7 +23,6 @@ export function SpreadsheetScheduler({
     timeSlots,
     members,
     onToggleAssignment,
-    darkMode,
     selectedDate,
     onDateChange,
 }: SpreadsheetSchedulerProps) {
@@ -117,25 +115,13 @@ export function SpreadsheetScheduler({
 
     return (
         <div
-            className={`${
-                darkMode ? "bg-gray-900" : "bg-white"
-            } rounded-lg border ${
-                darkMode ? "border-gray-700" : "border-gray-200"
-            }`}
+            className="rounded-lg border bg-card text-card-foreground shadow-sm"
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}>
             {/* Header */}
-            <div
-                className={`flex items-center justify-between p-4 border-b ${
-                    darkMode ? "border-gray-700" : "border-gray-200"
-                }`}>
+            <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-4">
-                    <h3
-                        className={`text-lg ${
-                            darkMode ? "text-white" : "text-gray-900"
-                        }`}>
-                        Schedule Grid
-                    </h3>
+                    <h3 className="text-lg font-semibold">Schedule Grid</h3>
                     {/* Compact Day Selector */}
                     <div className="flex items-center gap-2">
                         <button
@@ -148,27 +134,12 @@ export function SpreadsheetScheduler({
                                     )
                                 )
                             }
-                            className={`p-1 rounded transition-colors ${
-                                darkMode
-                                    ? "hover:bg-gray-700"
-                                    : "hover:bg-gray-100"
-                            }`}>
-                            <ChevronLeft
-                                className={`w-4 h-4 ${
-                                    darkMode ? "text-gray-400" : "text-gray-500"
-                                }`}
-                            />
+                            className="p-1 rounded transition-colors hover:bg-muted">
+                            <ChevronLeft className="w-4 h-4 text-muted-foreground" />
                         </button>
                         <div className="flex items-center gap-1.5">
-                            <Calendar
-                                className={`w-3.5 h-3.5 ${
-                                    darkMode ? "text-gray-400" : "text-gray-500"
-                                }`}
-                            />
-                            <span
-                                className={`text-sm ${
-                                    darkMode ? "text-gray-300" : "text-gray-700"
-                                }`}>
+                            <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-sm font-medium">
                                 {selectedDate.toLocaleDateString("en-US", {
                                     month: "short",
                                     day: "numeric",
@@ -185,24 +156,13 @@ export function SpreadsheetScheduler({
                                     )
                                 )
                             }
-                            className={`p-1 rounded transition-colors ${
-                                darkMode
-                                    ? "hover:bg-gray-700"
-                                    : "hover:bg-gray-100"
-                            }`}>
-                            <ChevronRight
-                                className={`w-4 h-4 ${
-                                    darkMode ? "text-gray-400" : "text-gray-500"
-                                }`}
-                            />
+                            className="p-1 rounded transition-colors hover:bg-muted">
+                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         </button>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <span
-                        className={`text-xs ${
-                            darkMode ? "text-gray-400" : "text-gray-500"
-                        } mr-1`}>
+                    <span className="text-xs text-muted-foreground mr-1">
                         Paint Mode:
                     </span>
                     <button
@@ -244,87 +204,43 @@ export function SpreadsheetScheduler({
             {/* Spreadsheet */}
             <div className="overflow-auto max-h-[calc(100vh-300px)]">
                 <table className="w-full border-collapse">
-                    <thead
-                        className={`sticky top-0 ${
-                            darkMode ? "bg-gray-800" : "bg-gray-50"
-                        } z-10 border-b ${
-                            darkMode ? "border-gray-700" : "border-gray-200"
-                        }`}>
+                    <thead className="z-40">
                         <tr>
-                            {/* Time column header */}
-                            <th
-                                className={`py-2 px-3 text-left border-r ${
-                                    darkMode
-                                        ? "border-gray-700"
-                                        : "border-gray-200"
-                                } min-w-[70px] sticky left-0 ${
-                                    darkMode ? "bg-gray-800" : "bg-gray-50"
-                                } z-20`}>
+                            {/* Time column header - Sticky Top AND Sticky Left (Corner) */}
+                            <th className="py-2 px-3 text-left border-r min-w-[70px] sticky top-0 left-0 bg-[#E2E6ED] dark:bg-[#333333] z-50 border-b border-border font-medium shadow-sm opacity-100">
                                 <div className="flex items-center gap-1.5">
-                                    <Clock
-                                        className={`w-3.5 h-3.5 ${
-                                            darkMode
-                                                ? "text-gray-400"
-                                                : "text-gray-500"
-                                        }`}
-                                    />
-                                    <span
-                                        className={`text-xs ${
-                                            darkMode
-                                                ? "text-gray-300"
-                                                : "text-gray-600"
-                                        }`}>
+                                    <Clock className="w-3.5 h-3.5 text-secondary-foreground" />
+                                    <span className="text-xs text-secondary-foreground font-semibold">
                                         Time
                                     </span>
                                 </div>
                             </th>
 
-                            {/* Member column headers */}
+                            {/* Member column headers - Sticky Top */}
                             {members.map((member) => (
                                 <th
                                     key={member.id}
-                                    className={`py-2 px-2 border-r ${
-                                        darkMode
-                                            ? "border-gray-700"
-                                            : "border-gray-200"
-                                    } min-w-[60px]`}>
+                                    className="py-2 px-2 border-r min-w-[60px] sticky top-0 bg-[#E2E6ED] dark:bg-[#333333] z-40 border-b border-border shadow-sm opacity-100">
                                     <div className="flex flex-col items-center gap-1.5">
                                         <div
-                                            className="w-6 h-6 rounded-full"
+                                            className="w-6 h-6 rounded-full ring-1 ring-border"
                                             style={{
                                                 backgroundColor:
                                                     member.avatarColor,
                                             }}
                                         />
-                                        <span
-                                            className={`text-xs ${
-                                                darkMode
-                                                    ? "text-gray-300"
-                                                    : "text-gray-700"
-                                            } text-center leading-tight`}>
+                                        <span className="text-xs text-secondary-foreground text-center leading-tight font-medium">
                                             {member.name.split(" ")[0]}
                                         </span>
                                     </div>
                                 </th>
                             ))}
 
-                            {/* Status column header */}
-                            <th
-                                className={`py-2 px-3 text-center min-w-[90px]`}>
+                            {/* Status column header - Sticky Top */}
+                            <th className="py-2 px-3 text-center min-w-[90px] sticky top-0 bg-[#E2E6ED] dark:bg-[#333333] z-40 border-b border-border shadow-sm opacity-100">
                                 <div className="flex items-center justify-center gap-1.5">
-                                    <Users
-                                        className={`w-3.5 h-3.5 ${
-                                            darkMode
-                                                ? "text-gray-400"
-                                                : "text-gray-500"
-                                        }`}
-                                    />
-                                    <span
-                                        className={`text-xs ${
-                                            darkMode
-                                                ? "text-gray-300"
-                                                : "text-gray-600"
-                                        }`}>
+                                    <Users className="w-3.5 h-3.5 text-secondary-foreground" />
+                                    <span className="text-xs text-secondary-foreground font-semibold">
                                         Staff
                                     </span>
                                 </div>
@@ -342,38 +258,21 @@ export function SpreadsheetScheduler({
                             if (showTimeLabel) {
                                 rowBgClass =
                                     staffingStatus === "understaffed"
-                                        ? darkMode
-                                            ? "bg-red-950/20"
-                                            : "bg-red-50/30"
+                                        ? "bg-red-50/30 dark:bg-red-950/20"
                                         : staffingStatus === "perfect"
-                                        ? darkMode
-                                            ? "bg-emerald-950/20"
-                                            : "bg-emerald-50/30"
+                                        ? "bg-emerald-50/30 dark:bg-emerald-950/20"
                                         : "";
                             }
 
                             return (
                                 <tr key={slot.time} className={rowBgClass}>
-                                    {/* Time cell */}
+                                    {/* Time cell - Sticky Left */}
                                     <td
-                                        className={`py-0 px-3 border-r border-b ${
-                                            darkMode
-                                                ? "border-gray-700"
-                                                : "border-gray-200"
-                                        } sticky left-0 ${
-                                            darkMode
-                                                ? "bg-gray-900"
-                                                : "bg-white"
-                                        } z-10`}>
+                                        className={`py-0 px-3 border-r border-b sticky left-0 bg-white dark:bg-[#1a1a1a] z-30 opacity-100`}>
                                         <div className="flex items-center gap-2 h-6">
                                             {showTimeLabel ? (
                                                 <>
-                                                    <span
-                                                        className={`text-xs ${
-                                                            darkMode
-                                                                ? "text-gray-300"
-                                                                : "text-gray-700"
-                                                        }`}>
+                                                    <span className="text-xs text-foreground font-medium">
                                                         {formatTime(slot.time)}
                                                     </span>
                                                     {slot.isNighttime && (
@@ -383,7 +282,7 @@ export function SpreadsheetScheduler({
                                                     )}
                                                 </>
                                             ) : (
-                                                <span className="text-[10px] text-gray-400">
+                                                <span className="text-[10px] text-muted-foreground">
                                                     :
                                                     {slot.minute
                                                         .toString()
@@ -404,11 +303,7 @@ export function SpreadsheetScheduler({
                                         return (
                                             <td
                                                 key={member.id}
-                                                className={`p-0.5 border-r border-b ${
-                                                    darkMode
-                                                        ? "border-gray-700"
-                                                        : "border-gray-200"
-                                                }`}>
+                                                className="p-0.5 border-r border-b border-gray-200 dark:border-gray-700">
                                                 <div
                                                     className="h-6 rounded cursor-pointer transition-all hover:ring-2 hover:ring-offset-1 hover:ring-blue-400 flex items-center justify-center"
                                                     style={{
@@ -444,12 +339,7 @@ export function SpreadsheetScheduler({
                                     })}
 
                                     {/* Status cell - full color box with number */}
-                                    <td
-                                        className={`p-0.5 border-b ${
-                                            darkMode
-                                                ? "border-gray-700"
-                                                : "border-gray-200"
-                                        }`}>
+                                    <td className="p-0.5 border-b">
                                         <div
                                             className={`h-6 rounded flex items-center justify-center ${
                                                 staffingStatus ===
@@ -474,16 +364,8 @@ export function SpreadsheetScheduler({
             </div>
 
             {/* Instructions */}
-            <div
-                className={`p-3 border-t ${
-                    darkMode
-                        ? "border-gray-700 bg-gray-800"
-                        : "border-gray-200 bg-gray-50"
-                }`}>
-                <p
-                    className={`text-xs ${
-                        darkMode ? "text-gray-400" : "text-gray-600"
-                    }`}>
+            <div className="p-3 border-t bg-muted/20">
+                <p className="text-xs text-muted-foreground">
                     💡 Select a color from the legend above, then click or drag
                     across cells to paint your availability.
                 </p>

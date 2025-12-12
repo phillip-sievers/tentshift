@@ -1,37 +1,47 @@
-"use client";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { db } from "@/db";
+import { profiles, tents } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { DashboardWrapper } from "@/components/dashboard/DashboardWrapper";
 
-import { useState } from "react";
-import { DesktopDashboard } from "@/components/dashboard/DesktopDashboard";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+export default async function Home() {
+    const supabase = await createClient();
 
-export default function Home() {
-    const [darkMode, setDarkMode] = useState(false);
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
+    // Fetch user profile
+    const userProfile = await db.query.profiles.findFirst({
+        where: eq(profiles.id, user.id),
+    });
+
+    if (!userProfile || !userProfile.tentId) {
+        redirect("/onboarding");
+    }
+
+    const tent = await db.query.tents.findFirst({
+        where: eq(tents.id, userProfile.tentId),
+    });
+
+    if (!tent) {
+        redirect("/onboarding");
+    }
 
     return (
-        <DndProvider backend={HTML5Backend}>
-            <div className={darkMode ? "dark" : ""}>
-                <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
-                    {/* Header Navigation */}
-                    <div className="bg-[#003087] text-white p-4 sticky top-0 z-50">
-                        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-                            <h1 className="text-2xl">K-Ville Tent Manager</h1>
-                            <div className="flex items-center gap-4">
-                                <button
-                                    onClick={() => setDarkMode(!darkMode)}
-                                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded transition-colors cursor-pointer">
-                                    {darkMode ? "☀️ Light" : "🌙 Dark"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Main Content */}
-                    <div className="p-6">
-                        <DesktopDashboard darkMode={darkMode} />
-                    </div>
-                </div>
-            </div>
-        </DndProvider>
+        <DashboardWrapper
+            headerProps={{
+                tentId: tent.id,
+                tentName: tent.name,
+                tentImage: tent.imageUrl,
+                userAvatar: userProfile.avatarUrl,
+                userName: userProfile.fullName,
+            }}
+        />
     );
 }

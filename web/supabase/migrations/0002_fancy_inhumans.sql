@@ -1,0 +1,1 @@
+ALTER TABLE "tents" ADD COLUMN "image_url" text;

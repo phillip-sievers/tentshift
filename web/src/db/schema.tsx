@@ -13,6 +13,7 @@ export const tents = pgTable("tents", {
     name: text("name").notNull(),
     joinCode: text("join_code").notNull().unique(),
     tentType: text("tent_type").notNull().default("Black"),
+    imageUrl: text("image_url"),
     createdAt: timestamp("created_at").defaultNow(),
 });
 

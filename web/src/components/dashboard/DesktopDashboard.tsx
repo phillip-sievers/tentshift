@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
     Settings,
@@ -15,9 +17,7 @@ import { SpreadsheetScheduler } from "./SpreadsheetScheduler";
 import { RulesEngineModal } from "./RulesEngineModal";
 import type { Member, TimeSlot, PhaseSettings } from "../../types";
 
-interface DesktopDashboardProps {
-    darkMode: boolean;
-}
+interface DesktopDashboardProps {}
 
 type TabType = "schedule" | "summary" | "trading";
 
@@ -113,7 +113,7 @@ const generateTimeSlots = (phaseSettings: PhaseSettings): TimeSlot[] => {
     return slots;
 };
 
-export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
+export function DesktopDashboard() {
     const [phaseSettings, setPhaseSettings] = useState<PhaseSettings>({
         currentPhase: "Blue",
         daytimeRequirement: 10,
@@ -248,75 +248,35 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
             </div>
 
             {/* My Schedule Collapsible Section */}
-            <div
-                className={`mb-6 rounded-lg border ${
-                    darkMode
-                        ? "bg-gray-800 border-gray-700"
-                        : "bg-white border-gray-200"
-                }`}>
+            <div className="mb-6 rounded-lg border bg-card text-card-foreground shadow-sm">
                 <button
                     onClick={() => setMyScheduleOpen(!myScheduleOpen)}
-                    className={`w-full px-4 py-3 flex items-center justify-between hover:bg-opacity-50 transition-colors ${
-                        darkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
-                    }`}>
-                    <span
-                        className={`${
-                            darkMode ? "text-white" : "text-gray-900"
-                        }`}>
-                        My Schedule
-                    </span>
+                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                    <span className="font-medium">My Schedule</span>
                     <ChevronDown
                         className={`w-5 h-5 transition-transform ${
                             myScheduleOpen ? "rotate-180" : ""
-                        } ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                        } text-muted-foreground`}
                     />
                 </button>
 
                 {myScheduleOpen && (
-                    <div
-                        className={`px-4 pb-4 border-t ${
-                            darkMode ? "border-gray-700" : "border-gray-200"
-                        }`}>
+                    <div className="px-4 pb-4 border-t">
                         <div className="grid grid-cols-2 gap-4 mt-4">
                             {/* Upload Calendar */}
-                            <div
-                                className={`p-4 rounded-lg border ${
-                                    darkMode
-                                        ? "bg-gray-900 border-gray-600"
-                                        : "bg-gray-50 border-gray-300"
-                                }`}>
+                            <div className="p-4 rounded-lg border bg-muted/20">
                                 <div className="flex items-center gap-2 mb-3">
-                                    <Upload
-                                        className={`w-5 h-5 ${
-                                            darkMode
-                                                ? "text-gray-400"
-                                                : "text-gray-600"
-                                        }`}
-                                    />
-                                    <h4
-                                        className={
-                                            darkMode
-                                                ? "text-white"
-                                                : "text-gray-900"
-                                        }>
+                                    <Upload className="w-5 h-5 text-muted-foreground" />
+                                    <h4 className="font-medium">
                                         Upload Calendar
                                     </h4>
                                 </div>
-                                <p
-                                    className={`text-sm mb-3 ${
-                                        darkMode
-                                            ? "text-gray-400"
-                                            : "text-gray-600"
-                                    }`}>
+                                <p className="text-sm mb-3 text-muted-foreground">
                                     Import your availability from Google
                                     Calendar, iCal, or other calendar services.
                                 </p>
                                 <button
-                                    className={`w-full px-4 py-2 rounded transition-colors ${
-                                        darkMode
-                                            ? "bg-[#003087] text-white hover:bg-[#00246b]"
-                                            : "bg-[#003087] text-white hover:bg-[#00246b]"
-                                    }`}
+                                    className="w-full px-4 py-2 rounded transition-colors bg-primary text-primary-foreground hover:bg-primary/90"
                                     onClick={() => {
                                         // Placeholder for calendar upload functionality
                                         alert(
@@ -328,35 +288,14 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
                             </div>
 
                             {/* Subscribe to Your Calendar */}
-                            <div
-                                className={`p-4 rounded-lg border ${
-                                    darkMode
-                                        ? "bg-gray-900 border-gray-600"
-                                        : "bg-gray-50 border-gray-300"
-                                }`}>
+                            <div className="p-4 rounded-lg border bg-muted/20">
                                 <div className="flex items-center gap-2 mb-3">
-                                    <Link
-                                        className={`w-5 h-5 ${
-                                            darkMode
-                                                ? "text-gray-400"
-                                                : "text-gray-600"
-                                        }`}
-                                    />
-                                    <h4
-                                        className={
-                                            darkMode
-                                                ? "text-white"
-                                                : "text-gray-900"
-                                        }>
+                                    <Link className="w-5 h-5 text-muted-foreground" />
+                                    <h4 className="font-medium">
                                         Subscribe to Your Column
                                     </h4>
                                 </div>
-                                <p
-                                    className={`text-sm mb-3 ${
-                                        darkMode
-                                            ? "text-gray-400"
-                                            : "text-gray-600"
-                                    }`}>
+                                <p className="text-sm mb-3 text-muted-foreground">
                                     Get a calendar subscription link to sync
                                     your assigned shifts with your calendar app.
                                 </p>
@@ -366,11 +305,7 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
                                         onChange={(e) =>
                                             setSelectedMember(e.target.value)
                                         }
-                                        className={`w-full px-3 py-2 rounded border text-sm ${
-                                            darkMode
-                                                ? "bg-gray-800 border-gray-600 text-white"
-                                                : "bg-white border-gray-300 text-gray-900"
-                                        }`}>
+                                        className="w-full px-3 py-2 rounded border text-sm bg-background border-input">
                                         {MOCK_MEMBERS.map((member) => (
                                             <option
                                                 key={member.id}
@@ -380,11 +315,7 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
                                         ))}
                                     </select>
                                     <button
-                                        className={`w-full px-4 py-2 rounded transition-colors ${
-                                            darkMode
-                                                ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                                                : "bg-emerald-500 text-white hover:bg-emerald-600"
-                                        }`}
+                                        className="w-full px-4 py-2 rounded transition-colors bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700"
                                         onClick={() => {
                                             const member = MOCK_MEMBERS.find(
                                                 (m) => m.id === selectedMember
@@ -407,20 +338,13 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
             </div>
 
             {/* Tab Navigation */}
-            <div
-                className={`flex gap-2 mb-4 border-b ${
-                    darkMode ? "border-gray-700" : "border-gray-200"
-                }`}>
+            <div className="flex gap-2 mb-4 border-b border-border">
                 <button
                     onClick={() => setCurrentTab("schedule")}
                     className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
                         currentTab === "schedule"
                             ? "border-[#003087] text-[#003087] dark:text-white"
-                            : `border-transparent ${
-                                  darkMode
-                                      ? "text-gray-400 hover:text-gray-300"
-                                      : "text-gray-600 hover:text-gray-900"
-                              }`
+                            : "border-transparent text-muted-foreground hover:text-foreground"
                     }`}>
                     <Calendar className="w-4 h-4" />
                     Schedule
@@ -430,11 +354,7 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
                     className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
                         currentTab === "summary"
                             ? "border-[#003087] text-[#003087] dark:text-white"
-                            : `border-transparent ${
-                                  darkMode
-                                      ? "text-gray-400 hover:text-gray-300"
-                                      : "text-gray-600 hover:text-gray-900"
-                              }`
+                            : "border-transparent text-muted-foreground hover:text-foreground"
                     }`}>
                     <TrendingUp className="w-4 h-4" />
                     Summary
@@ -444,11 +364,7 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
                     className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
                         currentTab === "trading"
                             ? "border-[#003087] text-[#003087] dark:text-white"
-                            : `border-transparent ${
-                                  darkMode
-                                      ? "text-gray-400 hover:text-gray-300"
-                                      : "text-gray-600 hover:text-gray-900"
-                              }`
+                            : "border-transparent text-muted-foreground hover:text-foreground"
                     }`}>
                     <RefreshCw className="w-4 h-4" />
                     Shift Trading
@@ -461,31 +377,18 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
                     timeSlots={timeSlots}
                     members={MOCK_MEMBERS}
                     onToggleAssignment={handleToggleAssignment}
-                    darkMode={darkMode}
                     selectedDate={selectedDate}
                     onDateChange={setSelectedDate}
                 />
             )}
 
             {currentTab === "summary" && (
-                <div
-                    className={`p-12 rounded-lg border ${
-                        darkMode
-                            ? "bg-gray-800 border-gray-700"
-                            : "bg-gray-50 border-gray-200"
-                    } text-center`}>
-                    <TrendingUp
-                        className={`w-16 h-16 mx-auto mb-4 ${
-                            darkMode ? "text-gray-600" : "text-gray-400"
-                        }`}
-                    />
-                    <h3
-                        className={`text-xl mb-2 ${
-                            darkMode ? "text-white" : "text-gray-900"
-                        }`}>
+                <div className="p-12 rounded-lg border bg-card text-card-foreground shadow-sm text-center">
+                    <TrendingUp className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-xl mb-2 text-foreground">
                         Summary View
                     </h3>
-                    <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
+                    <p className="text-muted-foreground">
                         Coming soon: Analytics and insights about shift
                         coverage, member participation, and scheduling patterns.
                     </p>
@@ -493,24 +396,12 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
             )}
 
             {currentTab === "trading" && (
-                <div
-                    className={`p-12 rounded-lg border ${
-                        darkMode
-                            ? "bg-gray-800 border-gray-700"
-                            : "bg-gray-50 border-gray-200"
-                    } text-center`}>
-                    <RefreshCw
-                        className={`w-16 h-16 mx-auto mb-4 ${
-                            darkMode ? "text-gray-600" : "text-gray-400"
-                        }`}
-                    />
-                    <h3
-                        className={`text-xl mb-2 ${
-                            darkMode ? "text-white" : "text-gray-900"
-                        }`}>
+                <div className="p-12 rounded-lg border bg-card text-card-foreground shadow-sm text-center">
+                    <RefreshCw className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-xl mb-2 text-foreground">
                         Shift Trading
                     </h3>
-                    <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
+                    <p className="text-muted-foreground">
                         Coming soon: Request, offer, and swap shifts with other
                         team members.
                     </p>
@@ -523,7 +414,6 @@ export function DesktopDashboard({ darkMode }: DesktopDashboardProps) {
                     currentSettings={phaseSettings}
                     onSave={handlePhaseUpdate}
                     onClose={() => setShowRulesModal(false)}
-                    darkMode={darkMode}
                 />
             )}
         </div>
