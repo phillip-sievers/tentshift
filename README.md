@@ -27,7 +27,7 @@ WIP for MVP:
     - [x] Offers as a swap or as a handoff
     - [x] creating/delete/reject trades (partial or full shifts)
     - [x] accept/view trade link to send to messages (tent group)
-  - [ ] About Page + Dono + Footer?
+  - [x] About Page + Dono + Footer?
 - [x] Add database integration
   - [x] Fix slop schemas make sure business and db logic match
 - [ ] Add backend
