@@ -2,8 +2,16 @@ import { useState } from "react";
 import { X, Calendar, Clock, AlertTriangle } from "lucide-react";
 import { TradeType, TradeUrgency } from "../../../types";
 
+interface ShiftCommon {
+    id: string;
+    startTime: string; // ISO
+    endTime: string;
+    tentId: string;
+}
+
 interface CreateTradeModalProps {
     onClose: () => void;
+    availableShifts: any[]; // Using any for now to match DB types, will refine
     onSubmit: (data: {
         shiftId: string;
         type: TradeType;
@@ -13,32 +21,11 @@ interface CreateTradeModalProps {
     }) => void;
 }
 
-// Mock shifts that the current user (Alex) has assigned
-const MY_MOCK_SHIFTS = [
-    {
-        id: "s1",
-        day: "Monday",
-        start: "09:00",
-        end: "11:00",
-        date: "2025-02-12T09:00:00",
-    },
-    {
-        id: "s2",
-        day: "Wednesday",
-        start: "14:00",
-        end: "16:00",
-        date: "2025-02-14T14:00:00",
-    },
-    {
-        id: "s3",
-        day: "Friday",
-        start: "20:00",
-        end: "22:00",
-        date: "2025-02-16T20:00:00",
-    },
-];
-
-export function CreateTradeModal({ onClose, onSubmit }: CreateTradeModalProps) {
+export function CreateTradeModal({
+    onClose,
+    onSubmit,
+    availableShifts,
+}: CreateTradeModalProps) {
     const [selectedShiftId, setSelectedShiftId] = useState<string>("");
     const [type, setType] = useState<TradeType>("handoff");
     const [urgency, setUrgency] = useState<TradeUrgency>("medium");
@@ -46,20 +33,24 @@ export function CreateTradeModal({ onClose, onSubmit }: CreateTradeModalProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const shift = MY_MOCK_SHIFTS.find((s) => s.id === selectedShiftId);
+        const shift = availableShifts.find((s) => s.id === selectedShiftId);
         if (!shift) return;
 
-        // Construct the ISO strings based on a mock base date, or just pass the display strings in the 'offeredTimeSlot'
-        // For the mock, we will trust the component to handle the display logic, but strictly passing the object structure:
+        const startDate = new Date(shift.startTime);
+        const endDate = new Date(shift.endTime);
+        const dayName = startDate.toLocaleDateString("en-US", {
+            weekday: "long",
+        });
+
         onSubmit({
             shiftId: shift.id,
             type,
             urgency,
             note,
             offeredTimeSlot: {
-                start: `2025-02-12T${shift.start}:00`, // Mock ISO
-                end: `2025-02-12T${shift.end}:00`,
-                day: shift.day,
+                start: shift.startTime,
+                end: shift.endTime,
+                day: dayName,
             },
         });
         onClose();
@@ -85,12 +76,33 @@ export function CreateTradeModal({ onClose, onSubmit }: CreateTradeModalProps) {
                         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                             Which shift do you want to trade?
                         </label>
-                        <div className="grid grid-cols-1 gap-2">
-                            {MY_MOCK_SHIFTS.map((shift) => (
-                                <div
-                                    key={shift.id}
-                                    onClick={() => setSelectedShiftId(shift.id)}
-                                    className={`
+                        <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto">
+                            {availableShifts.length === 0 && (
+                                <p className="text-sm text-muted-foreground italic">
+                                    You have no upcoming shifts to trade.
+                                </p>
+                            )}
+                            {availableShifts.map((shift) => {
+                                const start = new Date(shift.startTime);
+                                const end = new Date(shift.endTime);
+                                const day = start.toLocaleDateString("en-US", {
+                                    weekday: "long",
+                                });
+                                const timeRange = `${start.toLocaleTimeString(
+                                    [],
+                                    { hour: "2-digit", minute: "2-digit" }
+                                )} - ${end.toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}`;
+
+                                return (
+                                    <div
+                                        key={shift.id}
+                                        onClick={() =>
+                                            setSelectedShiftId(shift.id)
+                                        }
+                                        className={`
                                         relative flex items-center gap-4 p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.01] hover:shadow-sm
                                         ${
                                             selectedShiftId === shift.id
@@ -98,24 +110,25 @@ export function CreateTradeModal({ onClose, onSubmit }: CreateTradeModalProps) {
                                                 : "border-border hover:bg-muted/50 hover:border-gray-300 dark:hover:border-gray-700"
                                         }
                                     `}>
-                                    <div
-                                        className={`p-2 rounded-full bg-muted`}>
-                                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="font-medium text-sm">
-                                            {shift.day}
+                                        <div
+                                            className={`p-2 rounded-full bg-muted`}>
+                                            <Calendar className="w-4 h-4 text-muted-foreground" />
                                         </div>
-                                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                            <Clock className="w-3 h-3" />
-                                            {shift.start} - {shift.end}
+                                        <div className="flex-1">
+                                            <div className="font-medium text-sm">
+                                                {day}
+                                            </div>
+                                            <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <Clock className="w-3 h-3" />
+                                                {timeRange}
+                                            </div>
                                         </div>
+                                        {selectedShiftId === shift.id && (
+                                            <div className="w-3 h-3 rounded-full bg-[#003087]" />
+                                        )}
                                     </div>
-                                    {selectedShiftId === shift.id && (
-                                        <div className="w-3 h-3 rounded-full bg-[#003087]" />
-                                    )}
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 

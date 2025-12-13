@@ -2,91 +2,177 @@
 
 import { useState } from "react";
 import { createTent, joinTent } from "@/app/actions/tent";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function OnboardingPage() {
-    const [activeTab, setActiveTab] = useState<"create" | "join">("create");
+    const [loading, setLoading] = useState(false);
+
+    // Wrapper to handle server action with toast feedback
+    const handleAction = async (
+        formData: FormData,
+        action: (formData: FormData) => Promise<void>
+    ) => {
+        setLoading(true);
+        try {
+            await action(formData);
+            // Redirect happens in action, but if it fell through:
+            toast.success("Success!");
+        } catch (error: unknown) {
+            console.error(error);
+            // If the redirect happens, this might not fire, which is fine.
+            // If error is thrown, we catch it.
+            // Note: In Next.js server actions, redirect throws an error usually caught by Next.js.
+            // We need to be careful not to catch the redirect error as a failure.
+            if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+                throw error;
+            }
+            const errorMessage =
+                error instanceof Error ? error.message : "An error occurred";
+            toast.error(errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center py-10">
-            <div className="w-full max-w-md rounded-lg border p-6 shadow-lg">
-                <h1 className="mb-6 text-center text-2xl font-bold">
-                    Welcome to TentShift
-                </h1>
+        <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 dark:bg-zinc-900 p-4">
+            <div className="w-full max-w-md">
+                <Card className="border-border shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="text-2xl font-bold text-primary">
+                            Welcome to TentShift
+                        </CardTitle>
+                        <CardDescription>
+                            Get started by creating a new tent or joining an
+                            existing one.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="create" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2 mb-6">
+                                <TabsTrigger value="create">
+                                    Create Tent
+                                </TabsTrigger>
+                                <TabsTrigger value="join">
+                                    Join Tent
+                                </TabsTrigger>
+                            </TabsList>
 
-                <div className="mb-6 flex border-b">
-                    <button
-                        className={`flex-1 py-2 ${
-                            activeTab === "create"
-                                ? "border-b-2 border-blue-500 font-bold text-blue-500"
-                                : "text-gray-500"
-                        }`}
-                        onClick={() => setActiveTab("create")}>
-                        Create Tent
-                    </button>
-                    <button
-                        className={`flex-1 py-2 ${
-                            activeTab === "join"
-                                ? "border-b-2 border-blue-500 font-bold text-blue-500"
-                                : "text-gray-500"
-                        }`}
-                        onClick={() => setActiveTab("join")}>
-                        Join Tent
-                    </button>
-                </div>
+                            <TabsContent value="create">
+                                <form
+                                    action={(formData) =>
+                                        handleAction(formData, createTent)
+                                    }
+                                    className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="tent-name">
+                                            Tent Name
+                                        </Label>
+                                        <Input
+                                            id="tent-name"
+                                            name="name"
+                                            type="text"
+                                            required
+                                            placeholder="e.g., The Best Tent"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="tent-type">
+                                            Tent Type
+                                        </Label>
+                                        <Select
+                                            name="type"
+                                            defaultValue="Black">
+                                            <SelectTrigger id="tent-type">
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Black">
+                                                    Black
+                                                </SelectItem>
+                                                <SelectItem value="Blue">
+                                                    Blue
+                                                </SelectItem>
+                                                <SelectItem value="White">
+                                                    White
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        className="w-full"
+                                        disabled={loading}>
+                                        {loading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Creating...
+                                            </>
+                                        ) : (
+                                            "Create Tent"
+                                        )}
+                                    </Button>
+                                </form>
+                            </TabsContent>
 
-                {activeTab === "create" ? (
-                    <form action={createTent} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium">
-                                Tent Name
-                            </label>
-                            <input
-                                name="name"
-                                type="text"
-                                required
-                                className="mt-1 w-full rounded border p-2 text-black"
-                                placeholder="e.g., The Best Tent"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium">
-                                Tent Type
-                            </label>
-                            <select
-                                name="type"
-                                className="mt-1 w-full rounded border p-2 text-black">
-                                <option value="Black">Black</option>
-                                <option value="Blue">Blue</option>
-                                <option value="White">White</option>
-                            </select>
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600">
-                            Create Tent
-                        </button>
-                    </form>
-                ) : (
-                    <form action={joinTent} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium">
-                                Join Code
-                            </label>
-                            <input
-                                name="code"
-                                type="text"
-                                required
-                                className="mt-1 w-full rounded border p-2 text-black"
-                                placeholder="e.g., ABC1234"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full rounded bg-green-500 p-2 text-white hover:bg-green-600">
-                            Join Tent
-                        </button>
-                    </form>
-                )}
+                            <TabsContent value="join">
+                                <form
+                                    action={(formData) =>
+                                        handleAction(formData, joinTent)
+                                    }
+                                    className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="join-code">
+                                            Join Code
+                                        </Label>
+                                        <Input
+                                            id="join-code"
+                                            name="code"
+                                            type="text"
+                                            required
+                                            placeholder="e.g., ABC1234"
+                                            className="uppercase"
+                                        />
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        className="w-full"
+                                        variant="secondary"
+                                        disabled={loading}>
+                                        {loading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Joining...
+                                            </>
+                                        ) : (
+                                            "Join Tent"
+                                        )}
+                                    </Button>
+                                </form>
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );

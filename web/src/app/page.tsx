@@ -1,7 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { profiles, tents } from "@/db/schema";
+import {
+    profiles,
+    tents,
+    shifts,
+    assignments,
+    availabilities,
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { DashboardWrapper } from "@/components/dashboard/DashboardWrapper";
 
@@ -33,6 +39,40 @@ export default async function Home() {
         redirect("/onboarding");
     }
 
+    // Fetch all members of the tent
+    const members = await db.query.profiles.findMany({
+        where: eq(profiles.tentId, tent.id),
+    });
+
+    // Fetch all shifts for the tent
+    const shiftsData = await db.query.shifts.findMany({
+        where: eq(shifts.tentId, tent.id),
+        with: {
+            assignments: {
+                with: {
+                    user: true,
+                },
+            },
+        },
+    });
+
+    const assignmentsData = await db.query.assignments.findMany({
+        with: {
+            shift: true,
+            user: true,
+        },
+        where: (assignments, { inArray }) =>
+            inArray(
+                assignments.shiftId,
+                shiftsData.map((s) => s.id)
+            ),
+    });
+
+    // Fetch availabilities for the tent
+    const availabilitiesData = await db.query.availabilities.findMany({
+        where: eq(availabilities.tentId, tent.id),
+    });
+
     return (
         <DashboardWrapper
             headerProps={{
@@ -42,6 +82,11 @@ export default async function Home() {
                 userAvatar: userProfile.avatarUrl,
                 userName: userProfile.fullName,
             }}
+            members={members}
+            shifts={shiftsData}
+            assignments={assignmentsData}
+            availabilities={availabilitiesData}
+            currentUser={userProfile}
         />
     );
 }

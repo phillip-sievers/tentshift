@@ -15,9 +15,21 @@ interface DashboardWrapperProps {
         userAvatar: string | null;
         userName: string | null;
     };
+    members: any[];
+    shifts: any[];
+    assignments: any[];
+    availabilities: any[];
+    currentUser: any;
 }
 
-export function DashboardWrapper({ headerProps }: DashboardWrapperProps) {
+export function DashboardWrapper({
+    headerProps,
+    members,
+    shifts,
+    assignments,
+    availabilities,
+    currentUser,
+}: DashboardWrapperProps) {
     const [mounted, setMounted] = useState(false);
 
     // Prevent hydration mismatch
@@ -39,7 +51,13 @@ export function DashboardWrapper({ headerProps }: DashboardWrapperProps) {
 
                 {/* Main Content */}
                 <div className="p-6 flex-1">
-                    <DesktopDashboard />
+                    <DesktopDashboard
+                        members={members}
+                        shifts={shifts}
+                        assignments={assignments}
+                        availabilities={availabilities}
+                        currentUser={currentUser}
+                    />
                 </div>
             </div>
         </DndProvider>

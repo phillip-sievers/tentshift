@@ -37,9 +37,13 @@ const MOCK_TRADES: Trade[] = [
 
 interface TradingViewProps {
     currentUserId: string;
+    availableShifts?: any[];
 }
 
-export function TradingView({ currentUserId }: TradingViewProps) {
+export function TradingView({
+    currentUserId,
+    availableShifts = [],
+}: TradingViewProps) {
     const [trades, setTrades] = useState<Trade[]>(MOCK_TRADES);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [filterType, setFilterType] = useState<"all" | "handoff" | "swap">(
@@ -128,6 +132,7 @@ export function TradingView({ currentUserId }: TradingViewProps) {
 
             {isCreateModalOpen && (
                 <CreateTradeModal
+                    availableShifts={availableShifts}
                     onClose={() => setIsCreateModalOpen(false)}
                     onSubmit={handleCreateTrade}
                 />

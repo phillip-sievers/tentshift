@@ -21,69 +21,24 @@ import { TradingView } from "./TradingView";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import type { Member, TimeSlot, PhaseSettings } from "../../types";
 
-interface DesktopDashboardProps {}
+interface DesktopDashboardProps {
+    members: any[];
+    shifts: any[];
+    assignments: any[];
+    availabilities: any[];
+    currentUser: any;
+}
 
 type TabType = "schedule" | "summary" | "trading";
 
-const MOCK_MEMBERS: Member[] = [
-    {
-        id: "1",
-        name: "Alex Chen",
-        avatarColor: "#3B82F6",
-        unavailable: [{ start: "09:00", end: "11:00", reason: "ECON 101" }],
-    },
-    {
-        id: "2",
-        name: "Jordan Smith",
-        avatarColor: "#8B5CF6",
-        unavailable: [
-            { start: "14:00", end: "16:00", reason: "Chemistry Lab" },
-        ],
-    },
-    {
-        id: "3",
-        name: "Sam Taylor",
-        avatarColor: "#EC4899",
-        unavailable: [{ start: "10:00", end: "12:00", reason: "Math Exam" }],
-    },
-    { id: "4", name: "Casey Morgan", avatarColor: "#F59E0B", unavailable: [] },
-    {
-        id: "5",
-        name: "Riley Parker",
-        avatarColor: "#10B981",
-        unavailable: [{ start: "13:00", end: "15:00", reason: "Study Group" }],
-    },
-    { id: "6", name: "Drew Wilson", avatarColor: "#06B6D4", unavailable: [] },
-    {
-        id: "7",
-        name: "Morgan Lee",
-        avatarColor: "#F43F5E",
-        unavailable: [{ start: "08:00", end: "10:00", reason: "Bio Lecture" }],
-    },
-    { id: "8", name: "Jamie Davis", avatarColor: "#6366F1", unavailable: [] },
-    {
-        id: "9",
-        name: "Quinn Brown",
-        avatarColor: "#84CC16",
-        unavailable: [{ start: "15:00", end: "17:00", reason: "Physics" }],
-    },
-    { id: "10", name: "Avery Jones", avatarColor: "#F97316", unavailable: [] },
-    {
-        id: "11",
-        name: "Cameron White",
-        avatarColor: "#14B8A6",
-        unavailable: [],
-    },
-    {
-        id: "12",
-        name: "Reese Martin",
-        avatarColor: "#A855F7",
-        unavailable: [{ start: "11:00", end: "13:00", reason: "English Lit" }],
-    },
-];
-
-const generateTimeSlots = (phaseSettings: PhaseSettings): TimeSlot[] => {
+const generateTimeSlots = (
+    phaseSettings: PhaseSettings,
+    shifts: any[],
+    assignments: any[],
+    selectedDate: Date
+): TimeSlot[] => {
     const slots: TimeSlot[] = [];
+    const dateStr = selectedDate.toDateString();
 
     // Generate 15-minute intervals (96 slots per day)
     for (let hour = 0; hour < 24; hour++) {
@@ -93,39 +48,93 @@ const generateTimeSlots = (phaseSettings: PhaseSettings): TimeSlot[] => {
                 ? phaseSettings.nighttimeRequirement
                 : phaseSettings.daytimeRequirement;
 
+            const timeString = `${hour.toString().padStart(2, "0")}:${minute
+                .toString()
+                .padStart(2, "0")}`;
+
+            // Find assignments for this slot
+            // 1. Find shifts that cover this time on this day
+            // We need to match date and time.
+            // Simplified logic: Check if a shift exists that covers this specific 15m block.
+
+            const slotStart = new Date(selectedDate);
+            slotStart.setHours(hour, minute, 0, 0);
+
+            // Filter shifts active at this slot
+            const activeShifts = shifts.filter((s) => {
+                const shiftStart = new Date(s.startTime);
+                const shiftEnd = new Date(s.endTime);
+                return shiftStart <= slotStart && shiftEnd > slotStart;
+            });
+
+            // Get user IDs assigned to these shifts
+            // This is a simplistic mapping. In reality, assignments link to shifts.
+            const assignedUserIds = assignments
+                .filter((a) => activeShifts.some((s) => s.id === a.shiftId))
+                .map((a) => a.userId);
+
+            // Determine required count from the shift if possible, else fallback to phase settings
+            // If multiple shifts overlap (weird), use the max requirement?
+            // Ideally, K-ville shifts are non-overlapping for a single tent usually, or represent different roles.
+            // For now, if we have a shift, use its requirement.
+            const currentShift = activeShifts[0];
+            const slotRequired = currentShift
+                ? currentShift.requiredCount
+                : required;
+
             slots.push({
-                time: `${hour.toString().padStart(2, "0")}:${minute
-                    .toString()
-                    .padStart(2, "0")}`,
+                time: timeString,
                 hour,
                 minute,
-                assigned: [],
-                availability: [],
-                required,
+                assigned: assignedUserIds,
+                availability: [], // TODO: wiring up availability later
+                required: slotRequired,
                 isNighttime,
             });
         }
     }
 
-    // Add some initial assignments for demo (using new time format)
-    slots[36].assigned = ["1", "2", "4", "5", "6", "8", "10", "11"]; // 9:00
-    slots[40].assigned = ["1", "3", "5", "7", "9"]; // 10:00
-    slots[56].assigned = ["1", "3", "4", "6", "7", "8", "9", "10", "11", "12"]; // 14:00
-    slots[80].assigned = ["2", "4", "5", "6", "8", "10"]; // 20:00
-    slots[8].assigned = ["7", "9", "11"]; // 2:00
-
     return slots;
 };
 
-export function DesktopDashboard() {
+export function DesktopDashboard({
+    members,
+    shifts,
+    assignments,
+    availabilities,
+    currentUser,
+}: DesktopDashboardProps) {
     const [phaseSettings, setPhaseSettings] = useState<PhaseSettings>({
         currentPhase: "Blue",
         daytimeRequirement: 10,
         nighttimeRequirement: 6,
     });
-    const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(
-        generateTimeSlots(phaseSettings)
+
+    // Map DB members to UI structure
+    const uiMembers: Member[] = members.map((m) => ({
+        id: m.id,
+        name: m.fullName || "Unknown",
+        avatarColor: "#3B82F6", // TODO: make dynamic or store in DB
+        unavailable: availabilities
+            .filter((a) => a.userId === m.id && a.status === "unavailable")
+            .map((a) => ({
+                start: new Date(a.startTime).toISOString(),
+                end: new Date(a.endTime).toISOString(),
+                reason: a.status, // or add a reason field to DB if needed
+            })),
+    }));
+
+    const [selectedDate, setSelectedDate] = useState(new Date());
+
+    // Re-generate slots when data or date changes
+    const timeSlots = generateTimeSlots(
+        phaseSettings,
+        shifts,
+        assignments,
+        selectedDate
     );
+
+    // Derived state for other modals can remain
     const [showRulesModal, setShowRulesModal] = useState(false);
 
     const searchParams = useSearchParams();
@@ -140,105 +149,20 @@ export function DesktopDashboard() {
         router.push(`${pathname}?${params.toString()}`);
     };
 
-    const [selectedDate, setSelectedDate] = useState(new Date());
     const [myScheduleOpen, setMyScheduleOpen] = useState(false);
-    const [selectedMember, setSelectedMember] = useState<string>("1"); // Default to first member
-
-    // Format date for display
-    const formatDate = (date: Date) => {
-        return date.toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-        });
-    };
-
-    // Navigate to previous day
-    const previousDay = () => {
-        const newDate = new Date(selectedDate);
-        newDate.setDate(newDate.getDate() - 1);
-        setSelectedDate(newDate);
-    };
-
-    // Navigate to next day
-    const nextDay = () => {
-        const newDate = new Date(selectedDate);
-        newDate.setDate(newDate.getDate() + 1);
-        setSelectedDate(newDate);
-    };
-
-    // Jump to today
-    const goToToday = () => {
-        setSelectedDate(new Date());
-    };
+    const [selectedMember, setSelectedMember] = useState<string>(
+        currentUser.id
+    );
 
     const handlePhaseUpdate = (newSettings: PhaseSettings) => {
         setPhaseSettings(newSettings);
-        setTimeSlots(generateTimeSlots(newSettings));
         setShowRulesModal(false);
     };
 
-    const handleAssignMember = (memberId: string, slotTime: string) => {
-        setTimeSlots((prev) =>
-            prev.map((slot) =>
-                slot.time === slotTime
-                    ? {
-                          ...slot,
-                          assigned: [...new Set([...slot.assigned, memberId])],
-                      }
-                    : slot
-            )
-        );
-    };
-
-    const handleRemoveMember = (memberId: string, slotTime: string) => {
-        setTimeSlots((prev) =>
-            prev.map((slot) =>
-                slot.time === slotTime
-                    ? {
-                          ...slot,
-                          assigned: slot.assigned.filter(
-                              (id) => id !== memberId
-                          ),
-                      }
-                    : slot
-            )
-        );
-    };
-
     const handleToggleAssignment = (memberId: string, slotTime: string) => {
-        setTimeSlots((prev) =>
-            prev.map((slot) => {
-                if (slot.time === slotTime) {
-                    const isAssigned = slot.assigned.includes(memberId);
-                    return {
-                        ...slot,
-                        assigned: isAssigned
-                            ? slot.assigned.filter((id) => id !== memberId)
-                            : [...slot.assigned, memberId],
-                    };
-                }
-                return slot;
-            })
-        );
+        // TODO: Implement optimistic UI + Server Action to toggle assignment
+        alert("Assignment toggling needs server action implementation.");
     };
-
-    const getStaffingSummary = () => {
-        const understaffed = timeSlots.filter(
-            (slot) => slot.assigned.length < slot.required
-        ).length;
-        const overstaffed = timeSlots.filter(
-            (slot) => slot.assigned.length > slot.required
-        ).length;
-        const perfect = timeSlots.filter(
-            (slot) => slot.assigned.length === slot.required
-        ).length;
-
-        return { understaffed, overstaffed, perfect };
-    };
-
-    const summary = getStaffingSummary();
 
     return (
         <div className="max-w-[1600px] mx-auto">
@@ -295,12 +219,18 @@ export function DesktopDashboard() {
                     <RefreshCw className="w-4 h-4" />
                     Shift Trading
                 </button>
+                <button
+                    onClick={() => router.push("/about")}
+                    className="flex items-center gap-2 px-4 py-3 border-b-2 border-transparent text-muted-foreground hover:text-[#003087] hover:border-[#003087]/20 hover:bg-gray-50/50 hover:shadow-sm transition-all duration-200">
+                    <AlertCircle className="w-4 h-4" />
+                    About
+                </button>
             </div>
 
             {/* Schedule Header Actions */}
             {currentTab === "schedule" && (
                 <div className="mb-6 flex items-start gap-4">
-                    {/* My Schedule Collapsible Section - Takes up 75% */}
+                    {/* My Schedule Collapsible Section */}
                     <div className="w-3/4 rounded-lg border bg-card text-card-foreground shadow-sm">
                         <button
                             onClick={() => setMyScheduleOpen(!myScheduleOpen)}
@@ -363,7 +293,7 @@ export function DesktopDashboard() {
                                                     )
                                                 }
                                                 className="w-full px-3 py-2 rounded border text-sm bg-background border-input">
-                                                {MOCK_MEMBERS.map((member) => (
+                                                {uiMembers.map((member) => (
                                                     <option
                                                         key={member.id}
                                                         value={member.id}>
@@ -375,7 +305,7 @@ export function DesktopDashboard() {
                                                 className="w-full px-4 py-2 rounded transition-colors bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700"
                                                 onClick={() => {
                                                     const member =
-                                                        MOCK_MEMBERS.find(
+                                                        uiMembers.find(
                                                             (m) =>
                                                                 m.id ===
                                                                 selectedMember
@@ -397,7 +327,7 @@ export function DesktopDashboard() {
                         )}
                     </div>
 
-                    {/* Generate Schedule Button - Takes up 25% */}
+                    {/* Generate Schedule Button */}
                     <button
                         onClick={() =>
                             alert("Generate Schedule feature coming soon!")
@@ -413,7 +343,7 @@ export function DesktopDashboard() {
             {currentTab === "schedule" && (
                 <SpreadsheetScheduler
                     timeSlots={timeSlots}
-                    members={MOCK_MEMBERS}
+                    members={uiMembers}
                     onToggleAssignment={handleToggleAssignment}
                     selectedDate={selectedDate}
                     onDateChange={setSelectedDate}
@@ -423,14 +353,27 @@ export function DesktopDashboard() {
             {currentTab === "summary" && (
                 <SummaryView
                     timeSlots={timeSlots}
-                    members={MOCK_MEMBERS}
+                    members={uiMembers}
                     currentMemberId={selectedMember}
                     phaseSettings={phaseSettings}
                 />
             )}
 
             {currentTab === "trading" && (
-                <TradingView currentUserId={selectedMember} />
+                <TradingView
+                    currentUserId={selectedMember}
+                    availableShifts={shifts.filter((s) => {
+                        // Check if current selected member is assigned to this shift
+                        // This is a rough check. Ideally use the assignments array properly.
+                        // memberId -> assignment -> shiftId
+                        const memberAssignments = assignments.filter(
+                            (a) => a.userId === selectedMember
+                        );
+                        return memberAssignments.some(
+                            (a) => a.shiftId === s.id
+                        );
+                    })}
+                />
             )}
 
             {/* Rules Engine Modal */}
